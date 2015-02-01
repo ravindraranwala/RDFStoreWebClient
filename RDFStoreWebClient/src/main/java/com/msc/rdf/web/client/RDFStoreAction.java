@@ -1,6 +1,11 @@
 package com.msc.rdf.web.client;
 
-import java.util.logging.Logger;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Properties;
+
+import org.apache.log4j.Logger;
 
 import com.datastax.driver.core.ResultSet;
 import com.msc.research.cassandra.dao.CassandraRDFStoreDaoServiceImpl;
@@ -15,9 +20,7 @@ public class RDFStoreAction extends ActionSupport {
 			.newInstance();
 	private static final RDFStoreDaoService rdfStoreDaoService = CassandraRDFStoreDaoServiceImpl
 			.newInstance();
-	private static final Logger logger = Logger.getLogger(RDFStoreAction.class
-			.getName());
-
+	private static final Logger LOGGER = Logger.getLogger(RDFStoreAction.class);
 	private String sparql;
 
 	private String result = null;
@@ -38,7 +41,9 @@ public class RDFStoreAction extends ActionSupport {
 			// Then build the RDF graph model.
 			rdfGraphProcessingEngineService.build(resultSet);
 		} catch (RDFGraphProcessisngException e) {
-			e.printStackTrace();
+			LOGGER.error(
+					"Graph Processing Exception occurred while building the RDF Graph",
+					e);
 		} finally {
 			/*
 			 * when the interaction with the DAO layer is completed, merely
@@ -50,20 +55,57 @@ public class RDFStoreAction extends ActionSupport {
 	}
 
 	public String executeQuery() {
+		LOGGER.info("Submitting the SPARQL Query to the RDF store.");
 		String[] splitQueryStr = sparql.split("(?=SELECT)");
 		try {
 			result = rdfGraphProcessingEngineService.queryRdfModel(
 					splitQueryStr[0], splitQueryStr[1]);
 
-			logger.info(result);
+			LOGGER.info(result);
 		} catch (RDFGraphProcessisngException e) {
-			e.printStackTrace();
+			LOGGER.error(
+					"Graph Processing Exception occurred while executing the SPARQL query",
+					e);
 		}
 
 		return "SUCCESS";
 	}
 
+	public String dropRDFStore() {
+		rdfStoreDaoService.dropRDFStore();
+		return "SUCCESS";
+	}
+
+	public String createRDFStore() {
+		try {
+			LOGGER.info("Creating the RDF store.");
+			InputStream input = getClass().getClassLoader()
+					.getResourceAsStream("/config.properties");
+			// Reading the properties files.
+			// InputStream input = new FileInputStream(
+			// "src/main/resources/config.properties");
+			// load a properties file
+			Properties prop = new Properties();
+			prop.load(input);
+
+			// get the property
+			String[] inputDataFiles = prop.getProperty("inputFiles").split(",");
+
+			rdfStoreDaoService.createRDFStore(rdfGraphProcessingEngineService
+					.getRDFDataSet(inputDataFiles));
+
+			LOGGER.info("RDF store was created successfully.");
+		} catch (FileNotFoundException e) {
+			LOGGER.error("The given file can not be found", e);
+		} catch (IOException e) {
+			LOGGER.error("I/O error occurred", e);
+		}
+		return "SUCCESS";
+
+	}
+
 	public String getResult() {
+		LOGGER.info("Returning the results of the SPARQL query for rendering.");
 		return result;
 	}
 

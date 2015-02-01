@@ -12,12 +12,34 @@
 
 		<action name="execute" method="executeQuery"
 			class="com.msc.rdf.web.client.RDFStoreAction">
-			<result name="SUCCESS">Welcome.jsp</result>
+			<result name="SUCCESS">
+				/jsp/Welcome.jsp
+			</result>
 
 		</action>
 		<action name="buildGraph" method="buildGraph"
 			class="com.msc.rdf.web.client.RDFStoreAction">
-			<result name="SUCCESS">RDFQuery.jsp</result>
+			<result name="SUCCESS" type="redirect">
+				<param name="location">
+					/jsp/RDFQuery.jsp
+				</param>
+			</result>
+		</action>
+		<action name="dropRDFStore" method="dropRDFStore"
+			class="com.msc.rdf.web.client.RDFStoreAction">
+			<result name="SUCCESS" type="redirect">
+				<param name="location">
+					/jsp/RDFQuery.jsp
+				</param>
+			</result>
+		</action>
+		<action name="createRDFStore" method="createRDFStore"
+			class="com.msc.rdf.web.client.RDFStoreAction">
+			<result name="SUCCESS" type="redirect">
+				<param name="location">
+					/jsp/RDFQuery.jsp
+				</param>
+			</result>
 		</action>
 	</package>
 </struts>

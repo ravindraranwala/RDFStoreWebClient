@@ -9,9 +9,14 @@
 </head>
 <body>
 	<s:form action="execute.action" method="post">
-		<s:url action="buildGraph.action" var="urlTag">
-		</s:url>
-		<a href="<s:property value="#urlTag" />">Build RDF Graph</a>
+		<ol>
+			<li><s:url action="buildGraph.action" var="urlTag">
+				</s:url> <a href="<s:property value="#urlTag" />">Build RDF Graph</a></li>
+			<li><s:url action="dropRDFStore.action" var="dropStore">
+				</s:url> <a href="<s:property value="#dropStore" />">Drop RDF Store</a></li>
+			<li><s:url action="createRDFStore.action" var="createStore">
+				</s:url> <a href="<s:property value="#createStore" />">Create RDF Store</a></li>
+		</ol>
 		<s:textarea lable="Sparql" name="sparql" cols="40" rows="20" />
 		<s:submit method="execute" value="execute" align="center" />
 	</s:form>
